@@ -1,3 +1,0 @@
-[submodule "src/os"]
-	path = src/os
-	url = https://github.com/ChibiOS/ChibiOS.git
