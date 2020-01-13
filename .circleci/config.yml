@@ -9,5 +9,8 @@ jobs:
           name: CD
           command: cd AVRSolution/Debug
       - run:
+          name: ls
+          command: ls -al
+      - run:
           name: clear
           command: make clean
