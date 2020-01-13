@@ -6,6 +6,8 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Check current version of node
+          name: CD
           command: cd AVRSolution
+      - run:
+          name: clear
           command: make clean
