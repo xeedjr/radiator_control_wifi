@@ -92,8 +92,8 @@ unsigned int OWI::ComputeCRC16(unsigned char inData, unsigned int seed)
  *
  *  \param  romvalue    A pointer to an array holding a 64 bit identifier.
  *
- *  \retval OWI_CRC_OK      The CRC's matched.
- *  \retval OWI_CRC_ERROR   There was a discrepancy between the calculated and the stored CRC.
+ *  \retval CRC_OK      The CRC's matched.
+ *  \retval CRC_ERROR   There was a discrepancy between the calculated and the stored CRC.
  */
 unsigned char OWI::CheckRomCRC(unsigned char * romValue)
 {
@@ -107,9 +107,9 @@ unsigned char OWI::CheckRomCRC(unsigned char * romValue)
     }
     if (crc8 == (*romValue))
     {
-        return OWI_CRC_OK;
+        return CRC_OK;
     }
-    return OWI_CRC_ERROR;
+    return CRC_ERROR;
 }
 
 unsigned char OWI::CheckScratchPadCRC(unsigned char * scratchpad)
@@ -124,9 +124,9 @@ unsigned char OWI::CheckScratchPadCRC(unsigned char * scratchpad)
     }
     if (crc8 == (*scratchpad))
     {
-        return OWI_CRC_OK;
+        return CRC_OK;
     }
-    return OWI_CRC_ERROR;
+    return CRC_ERROR;
 }
 
 
@@ -205,7 +205,7 @@ unsigned char OWI::ReceiveByte()
 void OWI::SkipRom()
 {
     // Send the SKIP ROM command on the bus.
-    SendByte(OWI_ROM_SKIP);
+    SendByte(ROM_SKIP);
 }
 
 
@@ -220,7 +220,7 @@ void OWI::ReadRom(unsigned char * romValue)
     unsigned char bytesLeft = 8;
 
     // Send the READ ROM command on the bus.
-    SendByte(OWI_ROM_READ);
+    SendByte(ROM_READ);
     
     // Do 8 times.
     while (bytesLeft > 0)
@@ -243,7 +243,7 @@ void OWI::MatchRom(unsigned char * romValue)
     unsigned char bytesLeft = 8;   
     
     // Send the MATCH ROM command.
-    SendByte(OWI_ROM_MATCH);
+    SendByte(ROM_MATCH);
 
     // Do once for each byte.
     while (bytesLeft > 0)
@@ -273,7 +273,7 @@ void OWI::MatchRom(unsigned char * romValue)
  *
  *  \param  pin             A bit-mask of the bus to perform a ROM search on.
  *
- *  \return The last bit position where there was a discrepancy between slave addresses the last time this function was run. Returns OWI_ROM_SEARCH_FAILED if an error was detected (e.g. a device was connected to the bus during the search), or OWI_ROM_SEARCH_FINISHED when there are no more devices to be discovered.
+ *  \return The last bit position where there was a discrepancy between slave addresses the last time this function was run. Returns ROM_SEARCH_FAILED if an error was detected (e.g. a device was connected to the bus during the search), or ROM_SEARCH_FINISHED when there are no more devices to be discovered.
  *
  *  \note   See main.c for an example of how to utilize this function.
  */
@@ -286,7 +286,7 @@ unsigned char OWI::SearchRom(unsigned char * bitPattern, unsigned char lastDevia
     unsigned char bitB;
 
     // Send SEARCH ROM command on the bus.
-    SendByte(OWI_ROM_SEARCH);
+    SendByte(ROM_SEARCH);
     
     // Walk through all 64 bits.
     while (currentBit <= 64)
@@ -298,7 +298,7 @@ unsigned char OWI::SearchRom(unsigned char * bitPattern, unsigned char lastDevia
         if (bitA && bitB)
         {
             // Both bits 1 (Error).
-            newDeviation = OWI_ROM_SEARCH_FAILED;
+            newDeviation = ROM_SEARCH_FAILED;
             return SEARCH_ERROR;
         }
         else if (bitA ^ bitB)
@@ -369,11 +369,11 @@ unsigned char OWI::SearchRom(unsigned char * bitPattern, unsigned char lastDevia
 
 /*! \brief  Perform a 1-Wire search
  *
- *  This function shows how the OWI_SearchRom function can be used to 
+ *  This function shows how the SearchRom function can be used to 
  *  discover all slaves on the bus. It will also CRC check the 64 bit
  *  identifiers.
  *
- *  \param  devices Pointer to an array of type OWI_device. The discovered 
+ *  \param  devices Pointer to an array of type device. The discovered 
  *                  devices will be placed from the beginning of this array.
  *
  *  \param  numDevices   The number of the device array.
@@ -384,7 +384,7 @@ unsigned char OWI::SearchRom(unsigned char * bitPattern, unsigned char lastDevia
  *  \retval SEARCH_CRC_ERROR    A CRC error occured. Probably because of noise
  *                              during transmission.
  */
-unsigned char OWI::SearchDevices(OWI_device * devices, unsigned char numDevices, unsigned char *num)
+unsigned char OWI::SearchDevices(device * devices, unsigned char numDevices, unsigned char *num)
 {
     unsigned char i, j;
     unsigned char * newID;
@@ -416,14 +416,14 @@ unsigned char OWI::SearchDevices(OWI_device * devices, unsigned char numDevices,
       currentID = newID;
       numFoundDevices++;
       newID=devices[numFoundDevices].id;                
-    } while(lastDeviation != OWI_ROM_SEARCH_FINISHED);            
+    } while(lastDeviation != ROM_SEARCH_FINISHED);            
 
     
     // Go through all the devices and do CRC check.
     for (i = 0; i < numFoundDevices; i++)
     {
         // If any id has a crc error, return error.
-        if(CheckRomCRC(devices[i].id) != OWI_CRC_OK)
+        if(CheckRomCRC(devices[i].id) != CRC_OK)
         {
             return SEARCH_CRC_ERROR;
         }
@@ -447,7 +447,7 @@ unsigned char OWI::SearchDevices(OWI_device * devices, unsigned char numDevices,
  *  \return A pointer to a device of the family.
  *  \retval NULL    if no device of the family was found.
  */
-unsigned char OWI::FindFamily(unsigned char familyID, OWI_device * devices, unsigned char numDevices, unsigned char lastNum)
+unsigned char OWI::FindFamily(unsigned char familyID, device * devices, unsigned char numDevices, unsigned char lastNum)
 {
     unsigned char i;
     
@@ -472,7 +472,7 @@ unsigned char OWI::FindFamily(unsigned char familyID, OWI_device * devices, unsi
     return SEARCH_ERROR;
 }
 
-#ifdef OWI_SOFTWARE_DRIVER
+#ifdef SOFTWARE_DRIVER
 
 #pragma GCC optimize 2
 /*! \brief Initialization of the one wire bus(es). (Software only driver)
@@ -485,11 +485,11 @@ unsigned char OWI::FindFamily(unsigned char familyID, OWI_device * devices, unsi
 void OWI::Init(ioline_t pin)
 {
 	this->pin = pin;
-    OWI_RELEASE_BUS(pin);
+    RELEASE_BUS(pin);
     // The first rising edge can be interpreted by a slave as the end of a
     // Reset pulse. Delay for the required reset recovery time (H) to be 
     // sure that the real reset is interpreted correctly.
-    WIRE1_PORT_DELAY_US(OWI_DELAY_H_STD_MODE);
+    WIRE1_PORT_DELAY_US(DELAY_H_STD_MODE);
 }
 
 
@@ -508,12 +508,12 @@ void OWI::WriteBit1()
     intState = osalSysGetStatusAndLockX();
     
     // Drive bus low and delay.
-    OWI_PULL_BUS_LOW(pin);
-    WIRE1_PORT_DELAY_US(OWI_DELAY_A_STD_MODE);
+    PULL_BUS_LOW(pin);
+    WIRE1_PORT_DELAY_US(DELAY_A_STD_MODE);
     
     // Release bus and delay.
-    OWI_RELEASE_BUS(pin);
-    WIRE1_PORT_DELAY_US(OWI_DELAY_B_STD_MODE);
+    RELEASE_BUS(pin);
+    WIRE1_PORT_DELAY_US(DELAY_B_STD_MODE);
     
     // Restore interrupts.
     osalSysRestoreStatusX(intState);
@@ -535,12 +535,12 @@ void OWI::WriteBit0()
     intState = osalSysGetStatusAndLockX();
     
     // Drive bus low and delay.
-    OWI_PULL_BUS_LOW(pin);
-    WIRE1_PORT_DELAY_US(OWI_DELAY_C_STD_MODE);
+    PULL_BUS_LOW(pin);
+    WIRE1_PORT_DELAY_US(DELAY_C_STD_MODE);
     
     // Release bus and delay.
-    OWI_RELEASE_BUS(pin);
-    WIRE1_PORT_DELAY_US(OWI_DELAY_D_STD_MODE);
+    RELEASE_BUS(pin);
+    WIRE1_PORT_DELAY_US(DELAY_D_STD_MODE);
     
     // Restore interrupts.
     osalSysRestoreStatusX(intState);
@@ -565,17 +565,17 @@ unsigned char OWI::ReadBit()
     
     // Drive bus low and delay.
 //	palSetLine(TP1);
-    OWI_PULL_BUS_LOW(pin);
-    WIRE1_PORT_DELAY_US(OWI_DELAY_A_STD_MODE);
+    PULL_BUS_LOW(pin);
+    WIRE1_PORT_DELAY_US(DELAY_A_STD_MODE);
     
     // Release bus and delay.
 //	palClearLine(TP1);
-    OWI_RELEASE_BUS(pin);
-    WIRE1_PORT_DELAY_US(OWI_DELAY_E_STD_MODE);
+    RELEASE_BUS(pin);
+    WIRE1_PORT_DELAY_US(DELAY_E_STD_MODE);
     
     // Sample bus and delay.
     bitsRead = 	palReadLine(pin);
-    WIRE1_PORT_DELAY_US(OWI_DELAY_F_STD_MODE);
+    WIRE1_PORT_DELAY_US(DELAY_F_STD_MODE);
     
     // Restore interrupts.
     osalSysRestoreStatusX(intState);
@@ -603,20 +603,20 @@ unsigned char OWI::DetectPresence()
     intState = osalSysGetStatusAndLockX();
     
     // Drive bus low and delay.
-    OWI_PULL_BUS_LOW(pin);
+    PULL_BUS_LOW(pin);
     //_delay_us(480);
-    //_delay_loop_2(OWI_DELAY_H_STD_MODE);
-    WIRE1_PORT_DELAY_US(OWI_DELAY_H_STD_MODE);
+    //_delay_loop_2(DELAY_H_STD_MODE);
+    WIRE1_PORT_DELAY_US(DELAY_H_STD_MODE);
     
     // Release bus and delay.
-    OWI_RELEASE_BUS(pin);
+    RELEASE_BUS(pin);
    // _delay_loop_2(7.3728 * 70 / 8);
-    WIRE1_PORT_DELAY_US(OWI_DELAY_I_STD_MODE);
+    WIRE1_PORT_DELAY_US(DELAY_I_STD_MODE);
     
     // Sample bus to detect presence signal and delay.
     presenceDetected = !palReadLine(pin);
     //_delay_loop_2(7.3728 * 410 / 8);
-    WIRE1_PORT_DELAY_US(OWI_DELAY_J_STD_MODE);
+    WIRE1_PORT_DELAY_US(DELAY_J_STD_MODE);
     
     // Restore interrupts.
    osalSysRestoreStatusX(intState);

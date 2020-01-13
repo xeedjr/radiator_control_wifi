@@ -32,13 +32,13 @@ int main () {
   
 	OWI owi;
 	owi.Init(WIRE1_DS1);
-	OWI::OWI_device owi_devices[2];
+	OWI::device owi_devices[2];
 	uint8_t num = 0;
 	owi.SearchDevices(owi_devices, 2, &num);
-	DS18B20_T DS1820_data;
-	DS1820_data.skip_romid = 1;
-	DS1820_init(&DS1820_data, &owi);
-	auto yes = DS1820_is(&DS1820_data);
+	DS18B20 sensor;
+	sensor.skip_romid = 1;
+	sensor.init(&owi);
+	auto yes = sensor.is();
 
 	
 	
@@ -49,7 +49,7 @@ int main () {
 	osTimerStart(id2, 1000);
 	  
 	while(1) {
-		auto T = DS1820_exec(&DS1820_data);
+		auto T = sensor.exec();
 		osDelay(1000);
 //		sdWrite(&SD1, (uint8_t*)"Test\n\r", sizeof("Test\n\r") - 1);
 	}

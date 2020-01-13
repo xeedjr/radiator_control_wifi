@@ -1,14 +1,14 @@
 #include "ds18b20.h"
 
-void DS1820_init(DS18B20_T *DS1820_data, OWI* bus)
+void DS18B20::init(OWI* bus)
 {
-    DS1820_data->bus = bus;
+    this->bus = bus;
 }
 
 #define CRC8INIT	0x00
 #define CRC8POLY	0x18              //0X18 = X^8+X^5+X^4+X^0
 
-unsigned char crc8 ( unsigned char *data_in, unsigned int number_of_bytes_to_read )
+unsigned char DS18B20::crc8 (unsigned char *data_in, unsigned int number_of_bytes_to_read )
 {
 	unsigned char	crc;
 	unsigned int    loop_count;
@@ -43,42 +43,42 @@ unsigned char crc8 ( unsigned char *data_in, unsigned int number_of_bytes_to_rea
 	return crc;
 }
 
-unsigned char ds1820_read_scratchpad(DS18B20_T *DS1820_data, unsigned char *data )  /// returns config bitfield
+unsigned char DS18B20::read_scratchpad(unsigned char *data )  /// returns config bitfield
 {
-    if (!DS1820_data->bus->DetectPresence()){
+    if (!bus->DetectPresence()){
       return 0;
     };
 
-    if (DS1820_data->skip_romid == 1)
+    if (skip_romid == 1)
     {
     	// skip rom
-    	DS1820_data->bus->SendByte(DS1820_CMD_SKIPROM);
+    	bus->SendByte(CMD_SKIPROM);
     }
     else
     {
     	//rom
-		DS1820_data->bus->SendByte(DS1820_CMD_MATCHROM);
-		DS1820_data->bus->SendByte(DS1820_data->id[0]);
-		DS1820_data->bus->SendByte(DS1820_data->id[1]);
-		DS1820_data->bus->SendByte(DS1820_data->id[2]);
-		DS1820_data->bus->SendByte(DS1820_data->id[3]);
-		DS1820_data->bus->SendByte(DS1820_data->id[4]);
-		DS1820_data->bus->SendByte(DS1820_data->id[5]);
-		DS1820_data->bus->SendByte(DS1820_data->id[6]);
-		DS1820_data->bus->SendByte(DS1820_data->id[7]);
+		bus->SendByte(CMD_MATCHROM);
+		bus->SendByte(id[0]);
+		bus->SendByte(id[1]);
+		bus->SendByte(id[2]);
+		bus->SendByte(id[3]);
+		bus->SendByte(id[4]);
+		bus->SendByte(id[5]);
+		bus->SendByte(id[6]);
+		bus->SendByte(id[7]);
     };
 
-	DS1820_data->bus->SendByte(DS1820_CMD_READSCRATCHPAD);
+	bus->SendByte(CMD_READSCRATCHPAD);
 
-    data[0] = DS1820_data->bus->ReceiveByte();    /// 0 Tlsb
-    data[1] = DS1820_data->bus->ReceiveByte();    /// 1 Tmsb
-    data[2] = DS1820_data->bus->ReceiveByte();    /// 2 Thlim
-    data[3] = DS1820_data->bus->ReceiveByte();    /// 3 Tllim
-    data[4] = DS1820_data->bus->ReceiveByte();    /// 4 Config
-    data[5] = DS1820_data->bus->ReceiveByte();    /// 5 RES0
-    data[6] = DS1820_data->bus->ReceiveByte();    /// 6 RES1
-    data[7] = DS1820_data->bus->ReceiveByte();    /// 7 RES2
-    data[8] = DS1820_data->bus->ReceiveByte();    /// 8 CRC
+    data[0] = bus->ReceiveByte();    /// 0 Tlsb
+    data[1] = bus->ReceiveByte();    /// 1 Tmsb
+    data[2] = bus->ReceiveByte();    /// 2 Thlim
+    data[3] = bus->ReceiveByte();    /// 3 Tllim
+    data[4] = bus->ReceiveByte();    /// 4 Config
+    data[5] = bus->ReceiveByte();    /// 5 RES0
+    data[6] = bus->ReceiveByte();    /// 6 RES1
+    data[7] = bus->ReceiveByte();    /// 7 RES2
+    data[8] = bus->ReceiveByte();    /// 8 CRC
 
     if (data[8] != crc8(data, 8)) {
         return 2;	/// if CRC is bad
@@ -87,32 +87,32 @@ unsigned char ds1820_read_scratchpad(DS18B20_T *DS1820_data, unsigned char *data
     return 1;
 }
 
-unsigned char ds1820_start_conv(DS18B20_T *DS1820_data)
+unsigned char DS18B20::start_conv()
 {
-    if (!DS1820_data->bus->DetectPresence()){
+    if (!bus->DetectPresence()){
       return 0;
     };
 
-    if (DS1820_data->skip_romid == 1)
+    if (skip_romid == 1)
     {
     	// skip rom
-    	DS1820_data->bus->SendByte(DS1820_CMD_SKIPROM);
+    	bus->SendByte(CMD_SKIPROM);
     }
     else
     {
     	//rom
-		DS1820_data->bus->SendByte(DS1820_CMD_MATCHROM);
-		DS1820_data->bus->SendByte(DS1820_data->id[0]);
-		DS1820_data->bus->SendByte(DS1820_data->id[1] );
-		DS1820_data->bus->SendByte(DS1820_data->id[2]);
-		DS1820_data->bus->SendByte(DS1820_data->id[3]);
-		DS1820_data->bus->SendByte(DS1820_data->id[4]);
-		DS1820_data->bus->SendByte(DS1820_data->id[5]);
-		DS1820_data->bus->SendByte(DS1820_data->id[6]);
-		DS1820_data->bus->SendByte(DS1820_data->id[7]);
+		bus->SendByte(CMD_MATCHROM);
+		bus->SendByte(id[0]);
+		bus->SendByte(id[1] );
+		bus->SendByte(id[2]);
+		bus->SendByte(id[3]);
+		bus->SendByte(id[4]);
+		bus->SendByte(id[5]);
+		bus->SendByte(id[6]);
+		bus->SendByte(id[7]);
     };
 
-    DS1820_data->bus->SendByte(DS1820_CMD_CONVERTTEMP);
+    bus->SendByte(CMD_CONVERTTEMP);
 
 	return 1;
 }
@@ -124,9 +124,9 @@ unsigned char ds1820_start_conv(DS18B20_T *DS1820_data)
         1 - if termal sensor is on
         2 - if termal sensor not on not off
 ************************************************************************************/
-unsigned char DS1820_is(DS18B20_T *DS1820_data)
+unsigned char DS18B20::is()
 {
-    if (!DS1820_data->bus->DetectPresence()){
+    if (!bus->DetectPresence()){
       return 0;
     };
 
@@ -135,7 +135,7 @@ unsigned char DS1820_is(DS18B20_T *DS1820_data)
 
 #include "cmsis_os.h"
 /// read temperature wit delay
-float DS1820_exec(DS18B20_T *DS1820_data)
+float DS18B20::exec()
 {
     unsigned char scratchpad[9];
     signed int T = 0;
@@ -143,7 +143,7 @@ float DS1820_exec(DS18B20_T *DS1820_data)
     unsigned char high = 0;
     unsigned char low = 0;
 
-    if (ds1820_start_conv( DS1820_data ) == 0)
+    if (start_conv() == 0)
     {
         // error cant start conversion
 		return -999;
@@ -152,7 +152,7 @@ float DS1820_exec(DS18B20_T *DS1820_data)
 	osDelay(1000);
 	
 	///read temperature register
-	if (ds1820_read_scratchpad (DS1820_data, scratchpad) == 1)	{
+	if (read_scratchpad (scratchpad) == 1)	{
 		// read good
 		T = scratchpad[1];
 		T <<= 8;
