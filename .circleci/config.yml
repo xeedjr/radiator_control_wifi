@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build:
     machine:
-      image: mkdryden/avr-toolchain
+      image: circleci/python
     steps:
       - checkout
       - run:
