@@ -73,11 +73,6 @@ const SerialConfig sd1_config = {
  */
 void boardInit(void) {
 
-  /*
-   * External interrupts setup, all disabled initially.
-   */
-  EICRA  = 0x00;
-  EICRB  = 0x00;
-  EIMSK  = 0x00;
+
 
 }

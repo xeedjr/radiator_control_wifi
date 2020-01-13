@@ -32,13 +32,14 @@
 /*
  * IO pins assignments.
  */
-#define PORTB_LED1  7
+#define PORTB_LED1  5
 
 
 /*
  * IO lines assignments.
  */
-#define LINE_LED1   PAL_LINE(IOPORT2, 7U)
+#define LINE_LED1   PAL_LINE(IOPORT2, PORTB_LED1)
+#define WIRE1_DS1	PAL_LINE(IOPORT4, 2U)
 
 /*
  * Port A setup.
@@ -49,10 +50,10 @@
 
 /*
  * Port B setup.
- * All inputs except PB7 which has a LED connected.
+ * All inputs except PB5 which has a LED connected.
  */
-#define VAL_DDRB    0x80
-#define VAL_PORTB   0xFF
+#define VAL_DDRB    0b00100000
+#define VAL_PORTB   0b11111111
 
 /*
  * Port C setup.

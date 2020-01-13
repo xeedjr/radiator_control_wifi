@@ -1,3 +1,6 @@
 [submodule "src/os"]
 	path = src/os
 	url = https://github.com/ChibiOS/ChibiOS.git
+[submodule "src/devices_chibios_hal"]
+	path = src/devices_chibios_hal
+	url = https://github.com/xeedjr/devices_chibios_hal.git
