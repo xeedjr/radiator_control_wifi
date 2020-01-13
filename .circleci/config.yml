@@ -7,7 +7,7 @@ jobs:
       - checkout
       - run:
           name: CD
-          command: cd AVRSolution
+          command: cd AVRSolution/Debug
       - run:
           name: clear
           command: make clean
