@@ -5,8 +5,11 @@
 
 #include "ds18b20.h"
 #include "OWI.h"
+#include "L9110S.h"
 
 extern const SerialConfig sd1_config;
+
+L9110S l9110s;
 
 void Timer1_Callback  (void const *arg) {
 	palTogglePad(IOPORT2, PORTB_LED1);
@@ -29,6 +32,8 @@ int main () {
 	* Activates the serial driver 1 using the driver default configuration.
 	*/
 	sdStart(&SD1, &sd1_config);
+  
+	l9110s.init(L9110S_IA, L9110S_IB);
   
 	OWI owi;
 	owi.Init(WIRE1_DS1);

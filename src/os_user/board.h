@@ -40,6 +40,8 @@
  */
 #define LINE_LED1   PAL_LINE(IOPORT2, PORTB_LED1)
 #define WIRE1_DS1	PAL_LINE(IOPORT4, 2U)
+#define L9110S_IA	PAL_LINE(IOPORT3, 6U)
+#define L9110S_IB	PAL_LINE(IOPORT3, 7U)
 
 /*
  * Port A setup.
@@ -57,10 +59,10 @@
 
 /*
  * Port C setup.
- * All inputs with pull-ups.
+ * C6 C7 - output
  */
-#define VAL_DDRC    0x00
-#define VAL_PORTC   0xFF
+#define VAL_DDRC    0b11000000
+#define VAL_PORTC   0b00111111
 
 /*
  * Port D setup.

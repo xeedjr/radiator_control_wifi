@@ -154,6 +154,8 @@
       <Value>../../src/os/os/rt/include</Value>
       <Value>../../src/os/os/hal/osal/rt</Value>
       <Value>%24(PackRepoDir)\Atmel\ATmega_DFP\1.2.272\include</Value>
+      <Value>../../src/devices_chibios_hal/OWI</Value>
+      <Value>../../src/devices_chibios_hal</Value>
     </ListValues>
   </avrgcc.compiler.directories.IncludePaths>
   <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
@@ -195,6 +197,8 @@
       <Value>../../src/os/os/rt/include</Value>
       <Value>../../src/os/os/hal/osal/rt</Value>
       <Value>%24(PackRepoDir)\Atmel\ATmega_DFP\1.2.272\include</Value>
+      <Value>../../src/devices_chibios_hal/OWI</Value>
+      <Value>../../src/devices_chibios_hal</Value>
     </ListValues>
   </avrgcccpp.compiler.directories.IncludePaths>
   <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
@@ -228,13 +232,33 @@
     <Folder Include="os" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\src\ds18b20.cpp">
+    <Compile Include="..\src\devices_chibios_hal\L9110S.cpp">
       <SubType>compile</SubType>
-      <Link>src\ds18b20.cpp</Link>
+      <Link>devices_chibios_hal\L9110S.cpp</Link>
     </Compile>
-    <Compile Include="..\src\ds18b20.h">
+    <Compile Include="..\src\devices_chibios_hal\L9110S.h">
       <SubType>compile</SubType>
-      <Link>src\ds18b20.h</Link>
+      <Link>devices_chibios_hal\L9110S.h</Link>
+    </Compile>
+    <Compile Include="..\src\devices_chibios_hal\OWI\ds18b20.cpp">
+      <SubType>compile</SubType>
+      <Link>devices_chibios_hal\ds18b20.cpp</Link>
+    </Compile>
+    <Compile Include="..\src\devices_chibios_hal\OWI\ds18b20.h">
+      <SubType>compile</SubType>
+      <Link>devices_chibios_hal\ds18b20.h</Link>
+    </Compile>
+    <Compile Include="..\src\devices_chibios_hal\OWI\OWI.cpp">
+      <SubType>compile</SubType>
+      <Link>devices_chibios_hal\OWI.cpp</Link>
+    </Compile>
+    <Compile Include="..\src\devices_chibios_hal\OWI\OWI.h">
+      <SubType>compile</SubType>
+      <Link>devices_chibios_hal\OWI.h</Link>
+    </Compile>
+    <Compile Include="..\src\devices_chibios_hal\OWI\port.h">
+      <SubType>compile</SubType>
+      <Link>devices_chibios_hal\port.h</Link>
     </Compile>
     <Compile Include="..\src\main.cpp">
       <SubType>compile</SubType>
@@ -583,18 +607,6 @@
     <Compile Include="..\src\os_user\mcuconf.h">
       <SubType>compile</SubType>
       <Link>os_user\mcuconf.h</Link>
-    </Compile>
-    <Compile Include="..\src\OWI.cpp">
-      <SubType>compile</SubType>
-      <Link>src\OWI.cpp</Link>
-    </Compile>
-    <Compile Include="..\src\OWI.h">
-      <SubType>compile</SubType>
-      <Link>src\OWI.h</Link>
-    </Compile>
-    <Compile Include="..\src\port.h">
-      <SubType>compile</SubType>
-      <Link>src\port.h</Link>
     </Compile>
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
