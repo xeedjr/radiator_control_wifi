@@ -1,0 +1,10 @@
+version: 2.1
+jobs:
+  build:
+    machine:
+      image: jcreekmore/avr-toolchain
+    steps:
+      - checkout
+      - run:
+          name: "Testing"
+          command: echo "Hi"
