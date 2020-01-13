@@ -8,3 +8,4 @@ jobs:
       - run:
           name: Check current version of node
           command: cd AVRSolution
+          command: make clean
