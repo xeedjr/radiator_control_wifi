@@ -7,4 +7,4 @@ jobs:
       - checkout
       - run:
           name: Check current version of node
-          command: echo "Hi"
+          command: cd AVRSolution
