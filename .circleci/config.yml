@@ -1,0 +1,13 @@
+version: 2.0
+jobs:
+  build:
+    docker:
+      - image: mkdryden/avr-toolchain
+    steps:
+      - checkout
+      - run:
+          name: CD
+          command: cd AVRSolution
+      - run:
+          name: clear
+          command: make clean
