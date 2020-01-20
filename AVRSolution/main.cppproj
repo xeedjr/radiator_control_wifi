@@ -156,6 +156,7 @@
       <Value>%24(PackRepoDir)\Atmel\ATmega_DFP\1.2.272\include</Value>
       <Value>../../src/devices_chibios_hal/OWI</Value>
       <Value>../../src/devices_chibios_hal</Value>
+      <Value>../../src/RF24</Value>
     </ListValues>
   </avrgcc.compiler.directories.IncludePaths>
   <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
@@ -199,6 +200,7 @@
       <Value>%24(PackRepoDir)\Atmel\ATmega_DFP\1.2.272\include</Value>
       <Value>../../src/devices_chibios_hal/OWI</Value>
       <Value>../../src/devices_chibios_hal</Value>
+      <Value>../../src/RF24</Value>
     </ListValues>
   </avrgcccpp.compiler.directories.IncludePaths>
   <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
@@ -222,6 +224,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="devices_chibios_hal" />
+    <Folder Include="avr_std_lib" />
+    <Folder Include="RF24" />
     <Folder Include="os_user" />
     <Folder Include="os\hal" />
     <Folder Include="os\hal_lld" />
@@ -232,6 +236,46 @@
     <Folder Include="os" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\src\avr_std_lib\auto_ptr.h">
+      <SubType>compile</SubType>
+      <Link>avr_std_lib\auto_ptr.h</Link>
+    </Compile>
+    <Compile Include="..\src\avr_std_lib\del_op.cpp">
+      <SubType>compile</SubType>
+      <Link>avr_std_lib\del_op.cpp</Link>
+    </Compile>
+    <Compile Include="..\src\avr_std_lib\del_opv.cpp">
+      <SubType>compile</SubType>
+      <Link>avr_std_lib\del_opv.cpp</Link>
+    </Compile>
+    <Compile Include="..\src\avr_std_lib\new_op.cpp">
+      <SubType>compile</SubType>
+      <Link>avr_std_lib\new_op.cpp</Link>
+    </Compile>
+    <Compile Include="..\src\avr_std_lib\terminate.cpp">
+      <SubType>compile</SubType>
+      <Link>avr_std_lib\terminate.cpp</Link>
+    </Compile>
+    <Compile Include="..\src\avr_std_lib\terminate.h">
+      <SubType>compile</SubType>
+      <Link>avr_std_lib\terminate.h</Link>
+    </Compile>
+    <Compile Include="..\src\avr_std_lib\throw.cpp">
+      <SubType>compile</SubType>
+      <Link>avr_std_lib\throw.cpp</Link>
+    </Compile>
+    <Compile Include="..\src\avr_std_lib\throw.h">
+      <SubType>compile</SubType>
+      <Link>avr_std_lib\throw.h</Link>
+    </Compile>
+    <Compile Include="..\src\devices_chibios_hal\ESP8266Parser.cpp">
+      <SubType>compile</SubType>
+      <Link>devices_chibios_hal\ESP8266Parser.cpp</Link>
+    </Compile>
+    <Compile Include="..\src\devices_chibios_hal\ESP8266Parser.h">
+      <SubType>compile</SubType>
+      <Link>devices_chibios_hal\ESP8266Parser.h</Link>
+    </Compile>
     <Compile Include="..\src\devices_chibios_hal\L9110S.cpp">
       <SubType>compile</SubType>
       <Link>devices_chibios_hal\L9110S.cpp</Link>
@@ -608,6 +652,72 @@
       <SubType>compile</SubType>
       <Link>os_user\mcuconf.h</Link>
     </Compile>
+    <Compile Include="..\src\os_user\RF24HALChibiosConfig.h">
+      <SubType>compile</SubType>
+      <Link>os_user\RF24HALChibiosConfig.h</Link>
+    </Compile>
+    <Compile Include="..\src\RF24\nRF24L01.h">
+      <SubType>compile</SubType>
+      <Link>RF24\nRF24L01.h</Link>
+    </Compile>
+    <Compile Include="..\src\RF24\RF24.cpp">
+      <SubType>compile</SubType>
+      <Link>RF24\RF24.cpp</Link>
+    </Compile>
+    <Compile Include="..\src\RF24\RF24.h">
+      <SubType>compile</SubType>
+      <Link>RF24\RF24.h</Link>
+    </Compile>
+    <Compile Include="..\src\RF24\RF24HAL.cpp">
+      <SubType>compile</SubType>
+      <Link>RF24\RF24HAL.cpp</Link>
+    </Compile>
+    <Compile Include="..\src\RF24\RF24HAL.h">
+      <SubType>compile</SubType>
+      <Link>RF24\RF24HAL.h</Link>
+    </Compile>
+    <Compile Include="..\src\RF24\RF24HALChibios.cpp">
+      <SubType>compile</SubType>
+      <Link>RF24\RF24HALChibios.cpp</Link>
+    </Compile>
+    <Compile Include="..\src\RF24\RF24HALChibios.h">
+      <SubType>compile</SubType>
+      <Link>RF24\RF24HALChibios.h</Link>
+    </Compile>
+    <Compile Include="..\src\RF24\RF24_config.h">
+      <SubType>compile</SubType>
+      <Link>RF24\RF24_config.h</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\avr_std_lib\array">
+      <SubType>compile</SubType>
+      <Link>avr_std_lib\array</Link>
+    </None>
+    <None Include="..\src\avr_std_lib\cstddef">
+      <SubType>compile</SubType>
+      <Link>avr_std_lib\cstddef</Link>
+    </None>
+    <None Include="..\src\avr_std_lib\exception">
+      <SubType>compile</SubType>
+      <Link>avr_std_lib\exception</Link>
+    </None>
+    <None Include="..\src\avr_std_lib\functional">
+      <SubType>compile</SubType>
+      <Link>avr_std_lib\functional</Link>
+    </None>
+    <None Include="..\src\avr_std_lib\new">
+      <SubType>compile</SubType>
+      <Link>avr_std_lib\new</Link>
+    </None>
+    <None Include="..\src\avr_std_lib\type_traits">
+      <SubType>compile</SubType>
+      <Link>avr_std_lib\type_traits</Link>
+    </None>
+    <None Include="..\src\avr_std_lib\utility">
+      <SubType>compile</SubType>
+      <Link>avr_std_lib\utility</Link>
+    </None>
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>

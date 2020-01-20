@@ -4,3 +4,9 @@
 [submodule "src/devices_chibios_hal"]
 	path = src/devices_chibios_hal
 	url = https://github.com/xeedjr/devices_chibios_hal.git
+[submodule "src/RF24"]
+	path = src/RF24
+	url = https://github.com/xeedjr/RF24.git
+[submodule "src/avr_std_lib"]
+	path = src/avr_std_lib
+	url = https://github.com/xeedjr/avr_std_lib.git

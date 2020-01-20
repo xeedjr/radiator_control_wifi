@@ -2,6 +2,18 @@
 # Automatically-generated file. Do not edit or delete the file
 ################################################################################
 
+..\src\avr_std_lib\del_op.cpp
+
+..\src\avr_std_lib\del_opv.cpp
+
+..\src\avr_std_lib\new_op.cpp
+
+..\src\avr_std_lib\terminate.cpp
+
+..\src\avr_std_lib\throw.cpp
+
+..\src\devices_chibios_hal\ESP8266Parser.cpp
+
 ..\src\devices_chibios_hal\L9110S.cpp
 
 ..\src\devices_chibios_hal\OWI\ds18b20.cpp
@@ -139,4 +151,10 @@
 ..\src\os\os\rt\src\chvt.c
 
 ..\src\os_user\board.c
+
+..\src\RF24\RF24.cpp
+
+..\src\RF24\RF24HAL.cpp
+
+..\src\RF24\RF24HALChibios.cpp
 

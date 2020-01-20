@@ -6,6 +6,8 @@
 #include "ds18b20.h"
 #include "OWI.h"
 #include "L9110S.h"
+#include "RF24.h"
+#include "RF24HALChibios.h"
 
 extern const SerialConfig sd1_config;
 
@@ -34,6 +36,7 @@ int main () {
 	sdStart(&SD1, &sd1_config);
   
 	l9110s.init(L9110S_IA, L9110S_IB);
+	//l9110s.set_direction(L9110S::kB);
   
 	OWI owi;
 	owi.Init(WIRE1_DS1);
@@ -52,6 +55,19 @@ int main () {
 		// Periodic timer created
 	}
 	osTimerStart(id2, 1000);
+
+	auto radio_hal = new RF24HAL_Chibios();
+	auto radio = new RF24(radio_hal);
+	
+	radio->begin();                           // Setup and configure rf radio
+	radio->setChannel(2);
+	radio->setPALevel(RF24_PA_MAX);
+	radio->setDataRate(RF24_1MBPS);
+	radio->setAutoAck(1);                     // Ensure autoACK is enabled
+	radio->setRetries(2,15);                  // Optionally, increase the delay between retries & # of retries
+	radio->setCRCLength(RF24_CRC_8);          // Use 8-bit CRC for performance
+	radio->setPayloadSize(1);
+	auto rate = radio->getCRCLength();
 	  
 	while(1) {
 		auto T = sensor.exec();
