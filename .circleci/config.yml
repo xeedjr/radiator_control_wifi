@@ -6,8 +6,8 @@ jobs:
     steps:
       - checkout
       - run:
-          name: CD
-          command: cd AVRSolution/Debug
-      - run:
-          name: clear
-          command: make clean
+          command: |
+            cd AVRSolution/Debug
+            ls -al
+            make clean
+
