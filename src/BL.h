@@ -13,6 +13,8 @@
 #include "ds18b20.h"
 #include "OWI.h"
 #include "L9110S.h"
+#include "SmartValve.h"
+#include <functional>
 
 class BL {
 	void thread(void);
@@ -20,7 +22,7 @@ class BL {
 		BL* p = (BL*)thisp;
 		p->thread();
 	};
-	osThreadDef (BL_thread, osPriorityNormal, 512, 0);              // define Thread and specify to allow three instances
+	osThreadDef (BL_thread, osPriorityNormal, 256, 0);              // define Thread and specify to allow three instances
 
 	void Timer1_Callback(void);
 	void static BL_Timer1_Callback  (void const *arg) {
@@ -28,15 +30,14 @@ class BL {
 		p->Timer1_Callback();
 	};
 	osTimerDef (Timer1, BL_Timer1_Callback);
-	
-	void Timer_StopDrive_Callback(void);
-	void static BL_Timer_StopDrive_Callback  (void const *arg) {
+
+	void Timer_RF24Send_Callback(void);
+	void static BL_Timer_RF24Send_Callback  (void const *arg) {
 		BL* p = (BL*)arg;
-		p->Timer_StopDrive_Callback();
+		p->Timer_RF24Send_Callback();
 	};
-	osTimerDef (Timer_StopDrive, BL_Timer_StopDrive_Callback);
-	osTimerId Timer_StopDriveId = {0};
-	bool is_open = false;
+	osTimerDef (Timer_RF24Send, BL_Timer_RF24Send_Callback);
+	osTimerId Timer_RF24SendId = {0};
 
 	void Timer_RF24Recv_Callback(void);
 	void static BL_Timer_RF24Recv_Callback  (void const *arg) {
@@ -50,13 +51,25 @@ class BL {
 	uint8_t RF24_place[sizeof(RF24)];
 	RF24HAL_Chibios* radio_hal;
 	RF24* radio;
-
+	typedef union {
+		struct {
+			uint8_t cmdId;
+			float setT;
+		} cmd;
+		struct {
+			uint8_t cmdId;
+			float setedT;
+			float currentT;
+		} ans;
+	} RadiatorMsg;
+	
 	typedef struct {
 		enum {
-			kSetT = 1 << 0,
-			kTimer1 = 1 << 1,
-			kTimerStopDrive = 1 << 2,
-			kTimerRF24Recv = 1 << 3,
+			kSetT = 1,
+			kTimer1,
+			kTimerDrive,
+			kTimerRF24Recv,
+			kTimerRF24Send,
 		} msgid;
 		union {
 			struct {
@@ -66,26 +79,31 @@ class BL {
 			} timer1;
 		} data;
 	} Message;
-	Message msg;
-	//MailBox<Message, 10> mb;
+	
 	osThreadId thread_id;
 
-	float temperature = 18.0;
-	L9110S l9110s;
+	float SetedT = 18.0;
 	OWI owi;
 	DS18B20 sensor;
 	float T;
 
-	void radio_send(float T, float setT);
-	void radio_check(void);
+	SmartValve smart_valve;
 
+	void radio_send(RadiatorMsg msg);
+	void radio_check(void);
+	
+	osMailQDef(mail, 2, Message);                    // Define mail queue
+	osMailQId  mail;
+	
 public:
 	BL();
 	virtual ~BL();
 
-	void setTemperature(float t) {
-		msg.data.setT.t = t;
-		osSignalSet(thread_id, Message::kSetT);
-	}
+	void setTemperature(float t);
+
+	struct PersistantStor {
+		float setT;
+		float setT_inv;
+	} ;
 };
 

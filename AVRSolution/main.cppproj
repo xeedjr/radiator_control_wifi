@@ -125,7 +125,7 @@
   <avrgcc.compiler.symbols.DefSymbols>
     <ListValues>
       <Value>DEBUG</Value>
-      <Value>F_CPU=16000000</Value>
+      <Value>F_CPU=8000000</Value>
     </ListValues>
   </avrgcc.compiler.symbols.DefSymbols>
   <avrgcc.compiler.directories.IncludePaths>
@@ -157,9 +157,10 @@
       <Value>../../src/devices_chibios_hal/OWI</Value>
       <Value>../../src/devices_chibios_hal</Value>
       <Value>../../src/RF24</Value>
+      <Value>../../src/avr_std_lib</Value>
     </ListValues>
   </avrgcc.compiler.directories.IncludePaths>
-  <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
+  <avrgcc.compiler.optimization.level>Optimize more (-O2)</avrgcc.compiler.optimization.level>
   <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
   <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
   <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
@@ -169,7 +170,7 @@
   <avrgcccpp.compiler.symbols.DefSymbols>
     <ListValues>
       <Value>DEBUG</Value>
-      <Value>F_CPU=16000000</Value>
+      <Value>F_CPU=8000000</Value>
     </ListValues>
   </avrgcccpp.compiler.symbols.DefSymbols>
   <avrgcccpp.compiler.directories.IncludePaths>
@@ -201,6 +202,7 @@
       <Value>../../src/devices_chibios_hal/OWI</Value>
       <Value>../../src/devices_chibios_hal</Value>
       <Value>../../src/RF24</Value>
+      <Value>../../src/avr_std_lib</Value>
     </ListValues>
   </avrgcccpp.compiler.directories.IncludePaths>
   <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
@@ -267,6 +269,14 @@
     <Compile Include="..\src\avr_std_lib\throw.h">
       <SubType>compile</SubType>
       <Link>avr_std_lib\throw.h</Link>
+    </Compile>
+    <Compile Include="..\src\BL.cpp">
+      <SubType>compile</SubType>
+      <Link>src\BL.cpp</Link>
+    </Compile>
+    <Compile Include="..\src\BL.h">
+      <SubType>compile</SubType>
+      <Link>src\BL.h</Link>
     </Compile>
     <Compile Include="..\src\devices_chibios_hal\ESP8266Parser.cpp">
       <SubType>compile</SubType>
@@ -656,6 +666,14 @@
       <SubType>compile</SubType>
       <Link>os_user\RF24HALChibiosConfig.h</Link>
     </Compile>
+    <Compile Include="..\src\power_management.h">
+      <SubType>compile</SubType>
+      <Link>src\power_management.h</Link>
+    </Compile>
+    <Compile Include="..\src\power_manegement.c">
+      <SubType>compile</SubType>
+      <Link>src\power_manegement.c</Link>
+    </Compile>
     <Compile Include="..\src\RF24\nRF24L01.h">
       <SubType>compile</SubType>
       <Link>RF24\nRF24L01.h</Link>
@@ -687,6 +705,14 @@
     <Compile Include="..\src\RF24\RF24_config.h">
       <SubType>compile</SubType>
       <Link>RF24\RF24_config.h</Link>
+    </Compile>
+    <Compile Include="..\src\SmartValve.cpp">
+      <SubType>compile</SubType>
+      <Link>src\SmartValve.cpp</Link>
+    </Compile>
+    <Compile Include="..\src\SmartValve.h">
+      <SubType>compile</SubType>
+      <Link>src\SmartValve.h</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>

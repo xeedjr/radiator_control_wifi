@@ -11,9 +11,9 @@
 
 #ifdef __cplusplus
 extern "C" {
-	#endif
+#endif
 	extern void enter_sleep_set(bool en_deep_);
-	#ifdef __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

@@ -12,6 +12,8 @@
 
 ..\src\avr_std_lib\throw.cpp
 
+..\src\BL.cpp
+
 ..\src\devices_chibios_hal\ESP8266Parser.cpp
 
 ..\src\devices_chibios_hal\L9110S.cpp
@@ -152,9 +154,13 @@
 
 ..\src\os_user\board.c
 
+..\src\power_manegement.c
+
 ..\src\RF24\RF24.cpp
 
 ..\src\RF24\RF24HAL.cpp
 
 ..\src\RF24\RF24HALChibios.cpp
+
+..\src\SmartValve.cpp
 

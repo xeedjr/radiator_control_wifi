@@ -120,7 +120,7 @@
  * @note    Requires @p CH_CFG_USE_MEMCORE.
  */
 #if !defined(CH_CFG_MEMCORE_SIZE)
-#define CH_CFG_MEMCORE_SIZE                 1200
+#define CH_CFG_MEMCORE_SIZE                 1000
 #endif
 
 /**
@@ -559,7 +559,7 @@
  * @note    The default is @p FALSE.
  */
 #if !defined(CH_DBG_FILL_THREADS)
-#define CH_DBG_FILL_THREADS                 FALSE
+#define CH_DBG_FILL_THREADS                 TRUE
 #endif
 
 /**
@@ -670,13 +670,13 @@
   /* Idle-leave code here.*/                                                \
 }
 
+
 /**
  * @brief   Idle Loop hook.
  * @details This hook is continuously invoked by the idle thread loop.
  */
 #define CH_CFG_IDLE_LOOP_HOOK() {                                           \
   /* Idle loop code here.*/                                                 \
-  enter_sleep();					\
 }
 
 /**

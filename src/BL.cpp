@@ -5,25 +5,39 @@
  *      Author: Bogdan
  */
 #include <new>
+#include <avr/eeprom.h>
+
 #include "ch.h"
 #include "hal.h"
 #include "cmsis_os.h"
 #include "BL.h"
 
+EEMEM BL::PersistantStor eem;
+
+
 BL::BL() {
-	l9110s.init(L9110S_IA, L9110S_IB);
 	owi.Init(WIRE1_DS1);
-	OWI::device owi_devices[2] = {0};
-	uint8_t num = 0;
-	owi.SearchDevices(owi_devices, 2, &num);
+//	OWI::device owi_devices[2] = {0};
+//	uint8_t num = 0;
+//	owi.SearchDevices(owi_devices, 2, &num);
 	sensor.skip_romid = 1;
 	sensor.init(&owi);
-	auto yes = sensor.is();
-	float T = sensor.exec();
+	sensor.setResolution(DS18B20::k9bit);
+//	auto yes = sensor.is();
+//	float T = sensor.exec();
 
 	radio_hal = new(RF24HAL_Chibios_place) RF24HAL_Chibios();
 	radio = new(RF24_place) RF24(radio_hal);
-	
+
+	eeprom_busy_wait();
+	uint32_t ST = eeprom_read_dword((uint32_t*)&eem.setT);
+	eeprom_busy_wait();
+	uint32_t ST_inv = eeprom_read_dword((uint32_t*)&eem.setT_inv);	
+	if (ST == ~(ST_inv)) {
+		/// good
+		SetedT = eeprom_read_float(&eem.setT);
+	}
+
 	radio->begin();                           // Setup and configure rf radio
 	radio->setChannel(2);
 	radio->setPALevel(RF24_PA_MAX);
@@ -32,39 +46,44 @@ BL::BL() {
 	radio->setRetries(2,15);                  // Optionally, increase the delay between retries & # of retries
 	radio->setCRCLength(RF24_CRC_8);          // Use 8-bit CRC for performance
 	radio->enableDynamicPayloads();
-//	auto rate = radio->getCRCLength();
+	auto rate = radio->getCRCLength();
+	if (rate != RF24_CRC_8) {
+		terminate();
+	}
 	// Write on our talking pipe
 	radio->openWritingPipe(pipe);
 	// Listen on our listening pipe
 	radio->openReadingPipe(1,pipe);
 	radio->startListening();
+	 
+	mail = osMailCreate(osMailQ(mail), NULL);      // create mail queue
 	
 	auto id2 = osTimerCreate (osTimer(Timer1), osTimerPeriodic, this);
 	if (id2 == NULL)  {
 		// Periodic timer created
-		return;
+		terminate();
 	}
 	osTimerStart(id2, 1000);
 	
 	Timer_RF24RecvId = osTimerCreate (osTimer(Timer_RF24Recv), osTimerPeriodic, this);
 	if (Timer_RF24RecvId == NULL)  {
 		// Periodic timer created
-		return;
+		terminate();
 	}
-	osTimerStart(Timer_RF24RecvId, 100);
+	osTimerStart(Timer_RF24RecvId, 10);
 		
-	Timer_StopDriveId = osTimerCreate (osTimer(Timer_StopDrive), osTimerOnce, this);
-	if (Timer_StopDriveId == NULL)  {
+	Timer_RF24SendId = osTimerCreate (osTimer(Timer_RF24Send), osTimerPeriodic, this);
+	if (Timer_RF24SendId == NULL)  {
 		// Periodic timer created
-		return;
+		terminate();
 	}
-		
+	osTimerStart(Timer_RF24SendId, 500);
+
 	thread_id = osThreadCreate (osThread (BL_thread), this);
 	if (thread_id == NULL)  {
 		// Periodic timer created
-		return;
+		terminate();
 	}
-	
 }
 
 BL::~BL() {
@@ -72,36 +91,56 @@ BL::~BL() {
 }
 
 void BL::Timer1_Callback(void) {
-	osSignalSet(thread_id, Message::kTimer1);
-}
-
-void BL::Timer_StopDrive_Callback(void) {
-	osSignalSet(thread_id, Message::kTimerStopDrive);
+	Message *mptr;
+	mptr = (Message*)osMailAlloc(mail, osWaitForever);       // Allocate memory
+	if (mptr != NULL) {
+		mptr->msgid = Message::kTimer1;
+		osMailPut(mail, mptr);                         // Send Mail
+	}
 }
 
 void BL::Timer_RF24Recv_Callback(void) {
-	osSignalSet(thread_id, Message::kTimerRF24Recv);
+	Message *mptr;
+	mptr = (Message*)osMailAlloc(mail, osWaitForever);       // Allocate memory
+	if (mptr != NULL) {
+		mptr->msgid = Message::kTimerRF24Recv;
+		osMailPut(mail, mptr);                         // Send Mail
+	}
 }
 
-void BL::radio_send(float T, float setT) {
-	uint8_t data [25] = {0};
+void BL::Timer_RF24Send_Callback(void) {
+	Message *mptr;
+	mptr = (Message*)osMailAlloc(mail, osWaitForever);       // Allocate memory
+	if (mptr != NULL) {
+		mptr->msgid = Message::kTimerRF24Send;
+		osMailPut(mail, mptr);                         // Send Mail
+	}
+}
+
+void BL::setTemperature(float t) {
+	Message *mptr;
+	mptr = (Message*)osMailAlloc(mail, osWaitForever);       // Allocate memory
+	if (mptr != NULL) {
+		mptr->msgid = Message::kSetT;
+		mptr->data.setT.t = t;
+		osMailPut(mail, mptr);                         // Send Mail
+	}
+}
 	
-	data[0] = 1;
-	data[1] = (uint8_t) T;	
-	data[2] = (uint8_t) setT;	
-	
+void BL::radio_send(RadiatorMsg msg) {
 	// First, stop listening so we can talk
 	radio->stopListening();
 
 	// Send the final one back.
-	bool res = radio->write( data, 3 );
+	bool res = radio->write( (void*)&msg.ans, sizeof(msg.ans) );
 
 	// Now, resume listening so we catch the next packets.
 	radio->startListening();
 }
 
 void BL::radio_check(void) {
-	uint8_t data [25] = {0};
+	RadiatorMsg msg;
+	
 	if ( radio->available() )
 	{
 		// Dump the payloads until we've gotten everything
@@ -110,15 +149,20 @@ void BL::radio_check(void) {
 		{
 			// Fetch the payload, and see if this was the last one.
 			uint8_t len = radio->getDynamicPayloadSize();
-			done = radio->read( data, len );
+			if (len == sizeof(msg.cmd))
+			{
+				done = radio->read( (void*)&msg.cmd, len );
 							
-			switch (data[0]) {
-				case 1 : // set temperatue
-				{
-					float Temperature = data[1];
-					setTemperature(Temperature);
+				switch (msg.cmd.cmdId) {
+					case 1 : // set temperatue
+					{
+						float Temperature = msg.cmd.setT;
+						setTemperature(Temperature);
+					}
+					break;
 				}
-				break;
+			} else {
+				done = true;
 			}
 		}
 	}
@@ -127,40 +171,52 @@ void BL::radio_check(void) {
 void BL::thread(void) {
 	while(1) {
 		osEvent ev;
+		Message  *rptr;
 	
-		ev = osSignalWait(0, osWaitForever);
-	
-		if ((ev.value.signals & Message::kSetT) > 0) {
-			temperature = msg.data.setT.t;
-		}
-		if ((ev.value.signals & Message::kTimer1) > 0) {
-			T = sensor.exec();
-			if (T > 5.0) {
-				if (T > (temperature+1.0)) {
-					/// close
-					if (is_open) {
-						l9110s.set_direction(L9110S::kB);
-						osTimerStart(Timer_StopDriveId, 60000);
-						is_open = false;
-					}
+		ev = osMailGet(mail, osWaitForever);        // wait for mail
+		//ev = osSignalWait(0, osWaitForever);
+	    if (ev.status == osEventMail) {
+		    rptr = (Message*)ev.value.p;
+			/// Use
+			switch (rptr->msgid) {
+				case Message::kSetT:
+				{
+					SetedT = rptr->data.setT.t;
+					uint32_t ST_inv = ~(*(uint32_t*)((void*)&SetedT));
+					eeprom_write_float(&eem.setT, SetedT);
+					eeprom_write_dword((uint32_t*)&eem.setT_inv, ST_inv);
 				}
-				if (T < (temperature-1.0)) {
-					// open
-					if (!is_open) {
-						l9110s.set_direction(L9110S::kA);
-						osTimerStart(Timer_StopDriveId, 60000);
-						is_open = true;
-					}
+				break;
+				case Message::kTimer1:
+				{
+					T = sensor.exec();
+					if (T > 5.0) {
+						if (T > (SetedT+1.0)) {
+							/// close
+							smart_valve.close();
+						}
+						if (T < (SetedT-1.0)) {
+							// open
+							smart_valve.open();
+						}
+					};
 				}
-			};
-		}
-		if ((ev.value.signals & Message::kTimerStopDrive) > 0) {
-			l9110s.set_direction(L9110S::kStop);
-		}
-		if ((ev.value.signals & Message::kTimerRF24Recv) > 0) {
-			radio_check();
-			radio_send(T, temperature);
-		}
+				break;
+				case Message::kTimerRF24Recv:
+				{
+					radio_check();
+				}
+				break;
+				case Message::kTimerRF24Send:
+					RadiatorMsg msg;
+					msg.ans.currentT = T;
+					msg.ans.setedT = SetedT;
+					radio_send(msg);
+				break;
+			}
+			/// End Use
+		    osMailFree(mail, rptr);                    // free memory allocated for mail
+	    }
 	}
 }
 
